@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . bot.properties
+
 input=".bot.cfg"
 echo "Starting session: $(date "+[%y:%m:%d %T]")">$log 
 echo "NICK $nick" > $input 
@@ -10,11 +11,13 @@ echo "JOIN #$channel" >> $input
 tail -f $input | telnet $server $port | while read res
 do
   # log the session
+  res=$(echo $res | iconv -f CP1251 -t UTF-8)
   echo "$(date "+[%y:%m:%d %T]")$res" >> $log
   # do things when you see output
   case "$res" in
     # respond to ping requests from the server
     PING*)
+      echo "PING>>: $res"
       echo "$res" | sed "s/I/O/" >> $input 
     ;;
     # for pings on nick/user
@@ -34,7 +37,7 @@ do
       echo "$res"
       who=$(echo "$res" | perl -pe "s/:(.*)\!.*@.*/\1/")
       from=$(echo "$res" | perl -pe "s/.*PRIVMSG (.*[#]?([a-zA-Z]|\-)*) :.*/\1/")
-      # "#" would mean it's a channel
+      # "$portould mean it's a channel
       if [ "$(echo "$from" | grep '#')" ]
       then
         test "$(echo "$res" | grep ":$nick:")" || continue
