@@ -7,7 +7,7 @@ echo "NICK $nick" > $input
 echo "USER $user" >> $input
 echo "JOIN #$channel" >> $input
 
-tail -f $input | telnet $server 6667 | while read res
+tail -f $input | telnet $server $port | while read res
 do
   # log the session
   echo "$(date "+[%y:%m:%d %T]")$res" >> $log
